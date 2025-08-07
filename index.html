@@ -253,8 +253,38 @@
         let listenersAttached = false; // Flag to prevent attaching listeners multiple times
         
         // --- FIREBASE SETUP ---
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'money-wise-app';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        // IMPORTANT: When deploying to your own site (like GitHub Pages),
+        // you MUST replace the placeholder object below with your own Firebase project configuration.
+        // You can get this from your Firebase project settings.
+        const firebaseConfig = typeof __firebase_config !== 'undefined'
+            ? JSON.parse(__firebase_config)
+            : {
+                // PASTE YOUR FIREBASE CONFIG OBJECT HERE
+                apiKey: "YOUR_API_KEY",
+                authDomain: "YOUR_AUTH_DOMAIN",
+                projectId: "YOUR_PROJECT_ID",
+                storageBucket: "YOUR_STORAGE_BUCKET",
+                messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+                appId: "YOUR_APP_ID"
+              };
+
+        // The app ID for Firestore paths
+        const appId = typeof __app_id !== 'undefined' ? __app_id : (firebaseConfig.projectId || 'money-wise-app');
+
+        // Check if the user has updated their Firebase config before initializing
+        if (firebaseConfig.apiKey === "YOUR_API_KEY") {
+            document.body.innerHTML = `
+                <div class="h-screen flex items-center justify-center bg-red-50">
+                    <div class="text-center p-8 bg-white rounded-lg shadow-lg max-w-lg mx-auto">
+                        <h1 class="text-2xl font-bold text-red-600 mb-4">Configuration Needed</h1>
+                        <p class="text-gray-700 mb-4">To run this application, you need to add your Firebase project configuration to the HTML file.</p>
+                        <p class="text-gray-600 text-sm">Please open the HTML file, find the <strong>firebaseConfig</strong> object in the script tag, and replace the placeholder values with your own project keys from the Firebase Console.</p>
+                    </div>
+                </div>
+            `;
+            // Stop further execution
+            throw new Error("Firebase config not updated. Please update the firebaseConfig object in your HTML file.");
+        }
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
@@ -766,7 +796,7 @@
                 emptyEl.style.display = 'none';
                 listEl.innerHTML = allTransactions.map(t => {
                     const isIncome = t.type === 'income';
-                    const catInfo = isIncome ? { icon: '💰', name: 'Income', color: 'bg-green-100 text-green-800' } : categoryConfig[t.category];
+                    const catInfo = isIncome ? { icon: '�', name: 'Income', color: 'bg-green-100 text-green-800' } : categoryConfig[t.category];
                     return `
                         <div class="p-4 hover:bg-gray-50 transition flex items-center justify-between">
                             <div class="flex items-center space-x-4">
