@@ -243,133 +243,81 @@
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, collection, onSnapshot, addDoc, setDoc, updateDoc, deleteDoc, query, where, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, collection, onSnapshot, addDoc, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- GLOBAL STATE & CONFIG ---
         let db, auth, userId;
         let expenses = [], incomes = [], budget = { amount: 0 }, savingsGoals = [];
         let spendingChart = null, categoryChart = null;
         let itemToDelete = null, itemTypeToDelete = null;
-        let listenersAttached = false; // Flag to prevent attaching listeners multiple times
+        let listenersAttached = false;
         
         // --- FIREBASE SETUP ---
-        // IMPORTANT: When deploying to your own site (like GitHub Pages),
-        // you MUST replace the placeholder object below with your own Firebase project configuration.
-        // You can get this from your Firebase project settings.
-        const firebaseConfig = typeof __firebase_config !== 'undefined'
-            ? JSON.parse(__firebase_config)
-            : {
-                // PASTE YOUR FIREBASE CONFIG OBJECT HERE
-                apiKey: "YOUR_API_KEY",
-                authDomain: "YOUR_AUTH_DOMAIN",
-                projectId: "YOUR_PROJECT_ID",
-                storageBucket: "YOUR_STORAGE_BUCKET",
-                messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-                appId: "YOUR_APP_ID"
-              };
+        const firebaseConfig = {
+            apiKey: "AIzaSyB1R0WblDr1q0DOkdCIL1RN-WcYA2DnCYI",
+            authDomain: "money-wise-uday.firebaseapp.com",
+            projectId: "money-wise-uday",
+            storageBucket: "money-wise-uday.firebasestorage.app",
+            messagingSenderId: "104761488774",
+            appId: "1:104761488774:web:5caf67d93494b04fc92807",
+            measurementId: "G-ZX7J2QLNK5"
+        };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : firebaseConfig.projectId;
 
-        // The app ID for Firestore paths
-        const appId = typeof __app_id !== 'undefined' ? __app_id : (firebaseConfig.projectId || 'money-wise-app');
+        // --- APP INITIALIZATION ---
+        async function main() {
+            assignWindowFunctions();
 
-        // Check if the user has updated their Firebase config before initializing
-        if (firebaseConfig.apiKey === "YOUR_API_KEY") {
-            document.body.innerHTML = `
-                <div class="h-screen flex items-center justify-center bg-red-50">
-                    <div class="text-center p-8 bg-white rounded-lg shadow-lg max-w-lg mx-auto">
-                        <h1 class="text-2xl font-bold text-red-600 mb-4">Configuration Needed</h1>
-                        <p class="text-gray-700 mb-4">To run this application, you need to add your Firebase project configuration to the HTML file.</p>
-                        <p class="text-gray-600 text-sm">Please open the HTML file, find the <strong>firebaseConfig</strong> object in the script tag, and replace the placeholder values with your own project keys from the Firebase Console.</p>
-                    </div>
-                </div>
-            `;
-            // Stop further execution
-            throw new Error("Firebase config not updated. Please update the firebaseConfig object in your HTML file.");
-        }
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        db = getFirestore(app);
-        auth = getAuth(app);
-
-        // --- AUTHENTICATION ---
-        onAuthStateChanged(auth, user => {
-            if (user) {
-                console.log("User is signed in with UID:", user.uid);
-                userId = user.uid;
-                // Once authenticated, setup listeners for data, but only once.
-                if (!listenersAttached) {
-                    setupFirestoreListeners();
-                    listenersAttached = true;
-                }
-            } else {
-                console.log("User is not signed in.");
-                userId = null;
-                listenersAttached = false; // Reset flag if user signs out
-            }
-        });
-        
-        // Handle initial auth token if provided
-        (async () => {
             try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                onAuthStateChanged(auth, user => {
+                    if (user) {
+                        console.log("User is signed in with UID:", user.uid);
+                        userId = user.uid;
+                        if (!listenersAttached) {
+                            setupFirestoreListeners();
+                            listenersAttached = true;
+                        }
+                    } else {
+                        console.log("User is not signed in.");
+                        userId = null;
+                        listenersAttached = false;
+                    }
+                });
+
+                // This block handles authentication. It tries the custom token first,
+                // and if that fails (like in a dev environment with a mismatched config),
+                // it falls back to anonymous sign-in.
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
+                    try {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } catch (tokenError) {
+                        console.warn("Custom token sign-in failed, likely due to config mismatch in dev environment. Falling back to anonymous sign-in.", tokenError);
+                        await signInAnonymously(auth);
+                    }
                 } else {
                     await signInAnonymously(auth);
                 }
+
             } catch (error) {
-                console.error("Authentication failed:", error);
-                // Show an error message to the user on the UI
-                document.body.innerHTML = `<div class="text-center p-8 text-red-500">Could not connect to the database. Please refresh.</div>`;
-            }
-        })();
-
-        // --- FIRESTORE LISTENERS ---
-        function setupFirestoreListeners() {
-            if (!userId) {
-                console.error("Cannot setup listeners: userId is null.");
-                return;
+                console.error("Firebase Initialization or Authentication Failed:", error);
+                const errorBox = document.createElement('div');
+                errorBox.className = "fixed top-0 left-0 w-full p-4 bg-red-600 text-white text-center z-50";
+                errorBox.textContent = `Connection Error: Could not connect to the database. Please ensure the correct sign-in method (e.g., Anonymous) is enabled in your Firebase project's Authentication settings.`;
+                document.body.prepend(errorBox);
             }
 
-            console.log("Attaching Firestore listeners for user:", userId);
-
-            // Collections paths
-            const expensesCol = collection(db, 'artifacts', appId, 'users', userId, 'expenses');
-            const incomesCol = collection(db, 'artifacts', appId, 'users', userId, 'incomes');
-            const budgetDoc = doc(db, 'artifacts', appId, 'users', userId, 'config', 'budget');
-            const goalsCol = collection(db, 'artifacts', appId, 'users', userId, 'savingsGoals');
-
-            // Listen for changes in expenses
-            onSnapshot(expensesCol, (snapshot) => {
-                expenses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                updateUI();
-            }, (error) => console.error("Expense listener error:", error));
-
-            // Listen for changes in incomes
-            onSnapshot(incomesCol, (snapshot) => {
-                incomes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                updateUI();
-            }, (error) => console.error("Income listener error:", error));
-
-            // Listen for changes in budget
-            onSnapshot(budgetDoc, (doc) => {
-                budget = doc.exists() ? { id: doc.id, ...doc.data() } : { amount: 0 };
-                updateUI();
-            }, (error) => console.error("Budget listener error:", error));
-
-            // Listen for changes in savings goals
-            onSnapshot(goalsCol, (snapshot) => {
-                savingsGoals = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                updateUI();
-            }, (error) => console.error("Goals listener error:", error));
-        }
-        
-        // --- UI INITIALIZATION & EVENT LISTENERS ---
-        document.addEventListener('DOMContentLoaded', function() {
             setRandomMoneyTip();
             document.getElementById('filterCategory').addEventListener('change', updateUI);
             document.getElementById('timeFilter').addEventListener('change', updateUI);
-            
-            // Make functions globally accessible for onclick handlers
+        }
+
+        document.addEventListener('DOMContentLoaded', main);
+        
+        function assignWindowFunctions() {
             window.showAddExpense = showAddExpense;
             window.showAddIncome = showAddIncome;
             window.showBudget = showBudget;
@@ -380,11 +328,46 @@
             window.confirmDelete = confirmDelete;
             window.deleteGoal = deleteGoal;
             window.handleFormSubmit = handleFormSubmit;
-        });
+        }
 
-        // --- CORE UI UPDATE FUNCTION ---
+        // --- FIRESTORE LISTENERS ---
+        function setupFirestoreListeners() {
+            if (!userId) {
+                console.error("Cannot setup listeners: userId is null.");
+                return;
+            }
+
+            console.log("Attaching Firestore listeners for user:", userId);
+
+            const expensesCol = collection(db, 'artifacts', appId, 'users', userId, 'expenses');
+            const incomesCol = collection(db, 'artifacts', appId, 'users', userId, 'incomes');
+            const budgetDoc = doc(db, 'artifacts', appId, 'users', userId, 'config', 'budget');
+            const goalsCol = collection(db, 'artifacts', appId, 'users', userId, 'savingsGoals');
+
+            onSnapshot(expensesCol, (snapshot) => {
+                expenses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                updateUI();
+            }, (error) => console.error("Expense listener error:", error));
+
+            onSnapshot(incomesCol, (snapshot) => {
+                incomes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                updateUI();
+            }, (error) => console.error("Income listener error:", error));
+
+            onSnapshot(budgetDoc, (doc) => {
+                budget = doc.exists() ? { id: doc.id, ...doc.data() } : { amount: 0 };
+                updateUI();
+            }, (error) => console.error("Budget listener error:", error));
+
+            onSnapshot(goalsCol, (snapshot) => {
+                savingsGoals = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                updateUI();
+            }, (error) => console.error("Goals listener error:", error));
+        }
+        
+        // --- UI UPDATE & DATA HANDLING FUNCTIONS ---
         function updateUI() {
-            if (!userId) return; // Don't update UI until user is authenticated
+            if (!userId) return;
             updateSummary();
             updateBudgetStatus();
             updateSavingsGoals();
@@ -393,7 +376,6 @@
             updateCharts();
         }
 
-        // --- DATA HANDLING (CREATE, UPDATE, DELETE) ---
         async function handleFormSubmit(e, type) {
             e.preventDefault();
             if (!userId) {
@@ -637,8 +619,6 @@
         function showGoal() { showModal(getGoalFormHTML()); }
 
         // --- DISPLAY & RENDER LOGIC ---
-        // (These functions read from the global state arrays and update the DOM)
-
         const categoryConfig = {
             food: { color: 'bg-red-100 text-red-800', icon: '🍔', name: 'Food', chartColor: 'rgb(239, 68, 68)' },
             transport: { color: 'bg-blue-100 text-blue-800', icon: '🚗', name: 'Transport', chartColor: 'rgb(59, 130, 246)' },
@@ -743,13 +723,11 @@
         }
         
         function updateInsights() {
-            // This function can be expanded with more complex logic
             const insightsContainer = document.getElementById('insightsContainer');
             if (expenses.length === 0 && incomes.length === 0) {
                 insightsContainer.innerHTML = '<p class="text-gray-500 col-span-2 text-center">Add transactions to see personalized insights.</p>';
                 return;
             }
-            // Basic insight: top spending category
             const categoryTotals = expenses.reduce((acc, exp) => {
                 acc[exp.category] = (acc[exp.category] || 0) + exp.amount;
                 return acc;
@@ -796,7 +774,7 @@
                 emptyEl.style.display = 'none';
                 listEl.innerHTML = allTransactions.map(t => {
                     const isIncome = t.type === 'income';
-                    const catInfo = isIncome ? { icon: '�', name: 'Income', color: 'bg-green-100 text-green-800' } : categoryConfig[t.category];
+                    const catInfo = isIncome ? { icon: '💰', name: 'Income', color: 'bg-green-100 text-green-800' } : categoryConfig[t.category];
                     return `
                         <div class="p-4 hover:bg-gray-50 transition flex items-center justify-between">
                             <div class="flex items-center space-x-4">
