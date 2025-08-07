@@ -93,6 +93,64 @@
             background: linear-gradient(to top, var(--accent), #fcd34d);
             transition: height 1s ease-in-out;
         }
+
+        /* --- Savings Garden --- */
+        #savings-garden {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 300px;
+            z-index: -1;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        .tree-trunk {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            background-color: #5a3a2e;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            transition: height 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        .leaf {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background-color: var(--text-secondary);
+            border-radius: 50% 0;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 1s ease-in-out;
+        }
+        
+        /* Growth Stages */
+        .stage-0 .tree-trunk { height: 0; }
+        .stage-1 .tree-trunk { height: 20px; }
+        .stage-1 .leaf-1 { bottom: 15px; left: 45%; opacity: 1; transform: scale(1) rotate(45deg); }
+        
+        .stage-2 .tree-trunk { height: 50px; }
+        .stage-2 .leaf { opacity: 1; transform: scale(1); }
+        .stage-2 .leaf-1 { bottom: 45px; left: 35%; transform: scale(1.2) rotate(60deg); }
+        .stage-2 .leaf-2 { bottom: 30px; left: 55%; transform: scale(1.1) rotate(-50deg); }
+        
+        .stage-3 .tree-trunk { height: 100px; }
+        .stage-3 .leaf { opacity: 1; transform: scale(1.2); }
+        .stage-3 .leaf-1 { bottom: 95px; left: 40%; transform: scale(1.4) rotate(50deg); }
+        .stage-3 .leaf-2 { bottom: 70px; left: 60%; transform: scale(1.3) rotate(-60deg); }
+        .stage-3 .leaf-3 { bottom: 50px; left: 30%; transform: scale(1.2) rotate(70deg); }
+
+        .stage-4 .tree-trunk { height: 180px; }
+        .stage-4 .leaf { opacity: 1; transform: scale(1.4); }
+        .stage-4 .leaf-1 { bottom: 170px; left: 45%; transform: scale(1.6) rotate(45deg); }
+        .stage-4 .leaf-2 { bottom: 140px; left: 65%; transform: scale(1.5) rotate(-55deg); }
+        .stage-4 .leaf-3 { bottom: 120px; left: 25%; transform: scale(1.4) rotate(65deg); }
+        .stage-4 .leaf-4 { bottom: 90px; left: 70%; transform: scale(1.3) rotate(-70deg); }
+        .stage-4 .leaf-5 { bottom: 60px; left: 20%; transform: scale(1.2) rotate(80deg); }
     </style>
 </head>
 <body class="text-gray-200 min-h-screen">
@@ -210,6 +268,17 @@
                             </div>
                         </div>
                         
+                        <!-- Smart Insights -->
+                        <div class="bg-[var(--bg-secondary)] rounded-xl shadow-md p-6 scroll-animate border border-[var(--border-color)]">
+                            <h2 class="text-lg font-semibold text-[var(--text-primary)] mb-4 flex items-center">
+                                <i class="fas fa-brain text-[var(--accent)] mr-2"></i>
+                                ✨ Smart Insights for You
+                            </h2>
+                            <div id="insightsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Insights will be inserted here -->
+                            </div>
+                        </div>
+                        
                         <!-- Recent Transactions -->
                         <div class="bg-[var(--bg-secondary)] rounded-xl shadow-md scroll-animate border border-[var(--border-color)]">
                             <div class="p-6 border-b border-[var(--border-color)] flex items-center justify-between">
@@ -273,7 +342,7 @@
         </main>
         
         <footer class="text-center py-6 text-gray-500 text-sm">
-            <p>Developed by UDAY KUMAR</p>
+            <p>Developed by <a href="https://www.linkedin.com/in/uday-kumar-cybersecurity/" target="_blank" class="inline-flex items-center text-[var(--accent)] hover:underline">UDAY KUMAR <i class="fab fa-linkedin ml-2"></i></a></p>
         </footer>
     </div>
 
@@ -306,7 +375,7 @@
 
         // --- GLOBAL STATE & CONFIG ---
         let db, auth, userId;
-        let expenses = [], incomes = [], budget = { amount: 0 }, savingsGoals = [];
+        let expenses = [], incomes = [], budget = { amount: 0 }, savingsGoals = [], loans = [];
         let spendingChart = null, categoryChart = null, monthlyComparisonChart = null;
         let itemToDelete = null, itemTypeToDelete = null;
         let listenersAttached = false;
@@ -397,11 +466,13 @@
             const incomesCol = collection(db, 'artifacts', appId, 'users', userId, 'incomes');
             const budgetDoc = doc(db, 'artifacts', appId, 'users', userId, 'config', 'budget');
             const goalsCol = collection(db, 'artifacts', appId, 'users', userId, 'savingsGoals');
+            const loansCol = collection(db, 'artifacts', appId, 'users', userId, 'loans');
 
             onSnapshot(expensesCol, (snapshot) => { expenses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); updateUI(); });
             onSnapshot(incomesCol, (snapshot) => { incomes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); updateUI(); });
             onSnapshot(budgetDoc, (doc) => { budget = doc.exists() ? { id: doc.id, ...doc.data() } : { amount: 0 }; updateUI(); });
             onSnapshot(goalsCol, (snapshot) => { savingsGoals = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); updateUI(); });
+            onSnapshot(loansCol, (snapshot) => { loans = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); updateUI(); });
         }
         
         // --- UI UPDATE & DATA HANDLING ---
@@ -410,6 +481,7 @@
             updateSummary(); 
             updateBudgetStatus(); 
             updateSavingsGoals(); 
+            updateInsights();
             updateTransactionList(); 
             updateCharts();
             updateSavingsGarden();
@@ -484,6 +556,8 @@
                 docRef = doc(db, 'artifacts', appId, 'users', userId, 'incomes', itemToDelete);
             } else if (itemTypeToDelete === 'goal') {
                 docRef = doc(db, 'artifacts', appId, 'users', userId, 'savingsGoals', itemToDelete);
+            } else if (itemTypeToDelete === 'loan') {
+                docRef = doc(db, 'artifacts', appId, 'users', userId, 'loans', itemToDelete);
             }
 
             if (docRef) {
@@ -623,7 +697,7 @@
             incomeEl.textContent = `₹${totalIncomeVal.toLocaleString('en-IN')}`;
             expensesEl.textContent = `₹${totalExpensesVal.toLocaleString('en-IN')}`;
             savingsEl.textContent = `₹${netSavingsVal.toLocaleString('en-IN')}`;
-            savingsEl.className = `text-base sm:text-xl font-bold ${netSavingsVal >= 0 ? 'text-indigo-400' : 'text-red-400'}`;
+            savingsEl.className = `text-base sm:text-xl font-bold ${netSavingsVal >= 0 ? 'text-[var(--accent)]' : 'text-red-400'}`;
         }
 
         function updateBudgetStatus() {
@@ -908,8 +982,8 @@
                     datasets: [{
                         label: 'Monthly Spending',
                         data,
-                        backgroundColor: ['rgba(107, 114, 128, 0.5)', 'rgba(99, 102, 241, 0.5)'],
-                        borderColor: ['#6b7280', '#6366f1'],
+                        backgroundColor: ['rgba(119, 141, 169, 0.5)', 'rgba(224, 164, 88, 0.5)'],
+                        borderColor: ['#778DA9', '#E0A458'],
                         borderWidth: 1
                     }]
                 },
@@ -953,15 +1027,15 @@
 
             // Set initial state
             const initialActiveTab = tabButtons[0];
-            initialActiveTab.classList.add('text-indigo-400');
+            initialActiveTab.classList.add('text-[var(--accent)]');
             updateUnderline(initialActiveTab);
 
             tabButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const targetPanelId = button.dataset.target;
                     
-                    tabButtons.forEach(btn => btn.classList.remove('text-indigo-400'));
-                    button.classList.add('text-indigo-400');
+                    tabButtons.forEach(btn => btn.classList.remove('text-[var(--accent)]'));
+                    button.classList.add('text-[var(--accent)]');
                     
                     tabPanels.forEach(panel => {
                         if (panel.id === targetPanelId) {
@@ -977,7 +1051,7 @@
             
             // Adjust underline on resize
             window.addEventListener('resize', () => {
-                const activeTab = document.querySelector('.tab-btn.text-indigo-400');
+                const activeTab = document.querySelector('.tab-btn.text-\\[var\\(--accent\\)\\]');
                 if (activeTab) {
                     updateUnderline(activeTab);
                 }
