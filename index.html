@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Money Wise - Smart Expense Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js script is now loaded at the end of the body for reliability -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -15,20 +14,19 @@
         .fade-in { animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .slide-in-up { animation: slideInUp 0.5s ease-in-out forwards; opacity: 0; }
+        .slide-in-up { animation: slideInUp 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards; opacity: 0; }
         @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(25px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        .value-change { animation: valueChange 0.6s ease-in-out; }
-        @keyframes valueChange {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.15); }
-            100% { transform: scale(1); }
+        
+        .modal-content-enter { animation: modalContentEnter 0.3s ease-out; }
+        @keyframes modalContentEnter {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
 
-        .insight-card { transition: all 0.3s; }
+        .insight-card { transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
         .insight-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         
         .progress-fill { transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
@@ -58,6 +56,19 @@
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
+        }
+        
+        /* AI Spinner */
+        .spinner {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #a78bfa; /* violet-400 */
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -90,37 +101,26 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Money Tip of the Day -->
-        <div class="money-tip text-white rounded-xl p-6 mb-8 fade-in shadow-lg">
-            <div class="flex items-center space-x-4">
-                <i class="fas fa-lightbulb text-3xl text-yellow-300"></i>
-                <div>
-                    <h3 class="text-lg font-semibold mb-1">Money Wisdom</h3>
-                    <p class="text-sm opacity-90" id="moneyTip">"A penny saved is a penny earned. Every small saving today builds your tomorrow's fortune."</p>
-                </div>
-            </div>
-        </div>
-
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Left Column - Actions & Goals -->
             <div class="lg:col-span-1 space-y-6">
                 <!-- Quick Actions -->
-                <div class="bg-gray-800 rounded-xl shadow-md p-6 fade-in border border-gray-700">
+                <div class="bg-gray-800 rounded-xl shadow-md p-6 slide-in-up border border-gray-700" style="animation-delay: 100ms;">
                     <h2 class="text-lg font-semibold text-gray-100 mb-4">Quick Actions</h2>
                     <div class="space-y-3">
-                        <button onclick="showAddExpense()" class="w-full p-4 bg-red-900/50 text-red-300 rounded-lg hover:bg-red-900/80 transition text-left">
+                        <button onclick="showAddExpense()" class="w-full p-4 bg-red-900/50 text-red-300 rounded-lg hover:bg-red-900/80 transition text-left transform hover:scale-105">
                             <i class="fas fa-minus-circle mr-3"></i>
                             <span class="font-medium">Add Expense</span>
                         </button>
-                        <button onclick="showAddIncome()" class="w-full p-4 bg-green-900/50 text-green-300 rounded-lg hover:bg-green-900/80 transition text-left">
+                        <button onclick="showAddIncome()" class="w-full p-4 bg-green-900/50 text-green-300 rounded-lg hover:bg-green-900/80 transition text-left transform hover:scale-105">
                             <i class="fas fa-plus-circle mr-3"></i>
                             <span class="font-medium">Add Income</span>
                         </button>
-                        <button onclick="showBudget()" class="w-full p-4 bg-blue-900/50 text-blue-300 rounded-lg hover:bg-blue-900/80 transition text-left">
+                        <button onclick="showBudget()" class="w-full p-4 bg-blue-900/50 text-blue-300 rounded-lg hover:bg-blue-900/80 transition text-left transform hover:scale-105">
                             <i class="fas fa-wallet mr-3"></i>
                             <span class="font-medium">Set Budget</span>
                         </button>
-                        <button onclick="showGoal()" class="w-full p-4 bg-purple-900/50 text-purple-300 rounded-lg hover:bg-purple-900/80 transition text-left">
+                        <button onclick="showGoal()" class="w-full p-4 bg-purple-900/50 text-purple-300 rounded-lg hover:bg-purple-900/80 transition text-left transform hover:scale-105">
                             <i class="fas fa-bullseye mr-3"></i>
                             <span class="font-medium">Savings Goal</span>
                         </button>
@@ -128,7 +128,7 @@
                 </div>
 
                 <!-- Budget Status -->
-                <div class="bg-gray-800 rounded-xl shadow-md p-6 fade-in border border-gray-700">
+                <div class="bg-gray-800 rounded-xl shadow-md p-6 slide-in-up border border-gray-700" style="animation-delay: 200ms;">
                     <h2 class="text-lg font-semibold text-gray-100 mb-4 flex items-center">
                         <i class="fas fa-chart-pie text-indigo-400 mr-2"></i>
                         Monthly Budget
@@ -150,7 +150,7 @@
                 </div>
 
                 <!-- Savings Goals -->
-                <div class="bg-gray-800 rounded-xl shadow-md p-6 fade-in border border-gray-700">
+                <div class="bg-gray-800 rounded-xl shadow-md p-6 slide-in-up border border-gray-700" style="animation-delay: 300ms;">
                     <h2 class="text-lg font-semibold text-gray-100 mb-4 flex items-center">
                         <i class="fas fa-bullseye text-indigo-400 mr-2"></i>
                         Your Goals
@@ -164,7 +164,7 @@
             <!-- Right Column - Analytics & Transactions -->
             <div class="lg:col-span-2 space-y-6">
                  <!-- Spending Analysis -->
-                <div class="bg-gray-800 rounded-xl shadow-md p-6 fade-in border border-gray-700">
+                <div class="bg-gray-800 rounded-xl shadow-md p-6 slide-in-up border border-gray-700" style="animation-delay: 400ms;">
                     <h2 class="text-lg font-semibold text-gray-100 mb-4 flex items-center">
                         <i class="fas fa-chart-line text-indigo-400 mr-2"></i>
                         Advanced Spending Analysis
@@ -192,10 +192,10 @@
                 </div>
 
                 <!-- Smart Insights -->
-                <div class="bg-gray-800 rounded-xl shadow-md p-6 fade-in border border-gray-700">
+                <div class="bg-gray-800 rounded-xl shadow-md p-6 slide-in-up border border-gray-700" style="animation-delay: 500ms;">
                     <h2 class="text-lg font-semibold text-gray-100 mb-4 flex items-center">
                         <i class="fas fa-brain text-indigo-400 mr-2"></i>
-                        Smart Insights for You
+                        ✨ Smart Insights for You
                     </h2>
                     <div id="insightsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Insights will be inserted here -->
@@ -203,30 +203,33 @@
                 </div>
 
                 <!-- Recent Transactions -->
-                <div class="bg-gray-800 rounded-xl shadow-md fade-in border border-gray-700">
-                    <div class="p-6 border-b border-gray-700">
-                        <div class="flex items-center justify-between">
-                            <h2 class="text-lg font-semibold text-gray-100 flex items-center">
-                                <i class="fas fa-list text-indigo-400 mr-2"></i>
-                                Recent Transactions
-                            </h2>
-                            <div class="flex items-center space-x-4">
-                                <select id="filterCategory" class="dark-input dark">
-                                    <option value="">All Categories</option>
-                                    <option value="food">🍔 Food</option>
-                                    <option value="transport">🚗 Transport</option>
-                                    <option value="shopping">🛍️ Shopping</option>
-                                    <option value="bills">📄 Bills</option>
-                                    <option value="entertainment">🎬 Fun</option>
-                                    <option value="other">📦 Other</option>
-                                </select>
-                                <select id="timeFilter" class="dark-input dark">
-                                    <option value="7">Last 7 days</option>
-                                    <option value="30" selected>Last 30 days</option>
-                                    <option value="90">Last 3 months</option>
-                                    <option value="all">All time</option>
-                                </select>
-                            </div>
+                <div class="bg-gray-800 rounded-xl shadow-md slide-in-up border border-gray-700" style="animation-delay: 600ms;">
+                    <div class="p-6 border-b border-gray-700 flex items-center justify-between">
+                        <h2 class="text-lg font-semibold text-gray-100 flex items-center">
+                            <i class="fas fa-list text-indigo-400 mr-2"></i>
+                            Recent Transactions
+                        </h2>
+                        <button onclick="exportToCSV()" class="text-sm text-indigo-400 hover:text-indigo-300">
+                            <i class="fas fa-download mr-1"></i> Export CSV
+                        </button>
+                    </div>
+                    <div class="p-4 border-b border-gray-700">
+                        <div class="flex items-center space-x-4">
+                            <select id="filterCategory" class="dark-input dark w-full">
+                                <option value="">All Categories</option>
+                                <option value="food">🍔 Food</option>
+                                <option value="transport">🚗 Transport</option>
+                                <option value="shopping">🛍️ Shopping</option>
+                                <option value="bills">📄 Bills</option>
+                                <option value="entertainment">🎬 Fun</option>
+                                <option value="other">📦 Other</option>
+                            </select>
+                            <select id="timeFilter" class="dark-input dark w-full">
+                                <option value="7">Last 7 days</option>
+                                <option value="30" selected>Last 30 days</option>
+                                <option value="90">Last 3 months</option>
+                                <option value="all">All time</option>
+                            </select>
                         </div>
                     </div>
                     <div id="transactionList" class="divide-y divide-gray-700 max-h-96 overflow-y-auto no-scrollbar">
@@ -246,40 +249,29 @@
         <p>Developed by UDAY KUMAR</p>
     </footer>
 
-    <!-- Generic Modal Structure -->
-    <div id="modal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50">
-        <div class="bg-gray-800 rounded-xl p-6 w-full max-w-md mx-4 fade-in border border-gray-700" id="modalContent">
-            <!-- Modal content will be injected here -->
-        </div>
+    <!-- Modals -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50 fade-in">
+        <div class="bg-gray-800 rounded-xl p-6 w-full max-w-md mx-4 border border-gray-700 modal-content-enter" id="modalContent"></div>
     </div>
-    
-    <!-- Delete Confirmation Modal -->
-    <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50">
-        <div class="bg-gray-800 rounded-xl p-6 w-full max-w-sm mx-4 fade-in border border-gray-700">
+    <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50 fade-in">
+        <div class="bg-gray-800 rounded-xl p-6 w-full max-w-sm mx-4 border border-gray-700 modal-content-enter">
             <div class="text-center">
                 <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-900/50 mb-4">
                     <i class="fas fa-exclamation-triangle text-red-400 text-xl"></i>
                 </div>
                 <h3 id="deleteModalTitle" class="text-lg font-semibold text-gray-100 mb-2">Delete Item?</h3>
-                <p id="deleteModalText" class="text-sm text-gray-400 mb-6">This will permanently remove this item from your records.</p>
+                <p id="deleteModalText" class="text-sm text-gray-400 mb-6">This will permanently remove this item.</p>
                 <div class="flex gap-3">
-                    <button onclick="confirmDelete()" class="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition font-medium">
-                        Delete
-                    </button>
-                    <button onclick="closeModal('deleteModal')" class="flex-1 bg-gray-600 text-gray-100 py-2 px-4 rounded-lg hover:bg-gray-500 transition font-medium">
-                        Cancel
-                    </button>
+                    <button onclick="confirmDelete()" class="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition font-medium">Delete</button>
+                    <button onclick="closeModal('deleteModal')" class="flex-1 bg-gray-600 text-gray-100 py-2 px-4 rounded-lg hover:bg-gray-500 transition font-medium">Cancel</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Chart.js Library -->
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Firebase and App Logic -->
     <script type="module">
-        // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, collection, onSnapshot, addDoc, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -291,7 +283,6 @@
         let itemToDelete = null, itemTypeToDelete = null;
         let listenersAttached = false;
         
-        // --- FIREBASE SETUP ---
         const firebaseConfig = {
             apiKey: "AIzaSyB1R0WblDr1q0DOkdCIL1RN-WcYA2DnCYI",
             authDomain: "money-wise-uday.firebaseapp.com",
@@ -314,14 +305,12 @@
 
                 onAuthStateChanged(auth, user => {
                     if (user) {
-                        console.log("User is signed in with UID:", user.uid);
                         userId = user.uid;
                         if (!listenersAttached) {
                             setupFirestoreListeners();
                             listenersAttached = true;
                         }
                     } else {
-                        console.log("User is not signed in.");
                         userId = null;
                         listenersAttached = false;
                     }
@@ -331,7 +320,6 @@
                     try {
                         await signInWithCustomToken(auth, __initial_auth_token);
                     } catch (tokenError) {
-                        console.warn("Custom token sign-in failed. Falling back to anonymous sign-in.", tokenError);
                         await signInAnonymously(auth);
                     }
                 } else {
@@ -339,14 +327,14 @@
                 }
 
             } catch (error) {
-                console.error("Firebase Initialization or Authentication Failed:", error);
+                console.error("Firebase Initialization Failed:", error);
                 const errorBox = document.createElement('div');
                 errorBox.className = "fixed top-0 left-0 w-full p-4 bg-red-600 text-white text-center z-50";
-                errorBox.textContent = `Connection Error: Could not connect to the database. Please ensure Anonymous sign-in is enabled in your Firebase project.`;
+                errorBox.textContent = `Connection Error. Please check Firebase config and ensure Anonymous sign-in is enabled.`;
                 document.body.prepend(errorBox);
             }
 
-            setRandomMoneyTip();
+            getDynamicMoneyTip();
             document.getElementById('filterCategory').addEventListener('change', updateUI);
             document.getElementById('timeFilter').addEventListener('change', updateUI);
         }
@@ -364,96 +352,60 @@
             window.confirmDelete = confirmDelete;
             window.deleteGoal = deleteGoal;
             window.handleFormSubmit = handleFormSubmit;
+            window.getAIInsights = getAIInsights;
+            window.exportToCSV = exportToCSV;
         }
 
         // --- FIRESTORE LISTENERS ---
         function setupFirestoreListeners() {
-            if (!userId) {
-                console.error("Cannot setup listeners: userId is null.");
-                return;
-            }
-
-            console.log("Attaching Firestore listeners for user:", userId);
-
+            if (!userId) return;
             const expensesCol = collection(db, 'artifacts', appId, 'users', userId, 'expenses');
             const incomesCol = collection(db, 'artifacts', appId, 'users', userId, 'incomes');
             const budgetDoc = doc(db, 'artifacts', appId, 'users', userId, 'config', 'budget');
             const goalsCol = collection(db, 'artifacts', appId, 'users', userId, 'savingsGoals');
 
-            onSnapshot(expensesCol, (snapshot) => {
-                expenses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                updateUI();
-            }, (error) => console.error("Expense listener error:", error));
-
-            onSnapshot(incomesCol, (snapshot) => {
-                incomes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                updateUI();
-            }, (error) => console.error("Income listener error:", error));
-
-            onSnapshot(budgetDoc, (doc) => {
-                budget = doc.exists() ? { id: doc.id, ...doc.data() } : { amount: 0 };
-                updateUI();
-            }, (error) => console.error("Budget listener error:", error));
-
-            onSnapshot(goalsCol, (snapshot) => {
-                savingsGoals = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                updateUI();
-            }, (error) => console.error("Goals listener error:", error));
+            onSnapshot(expensesCol, (snapshot) => { expenses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); updateUI(); });
+            onSnapshot(incomesCol, (snapshot) => { incomes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); updateUI(); });
+            onSnapshot(budgetDoc, (doc) => { budget = doc.exists() ? { id: doc.id, ...doc.data() } : { amount: 0 }; updateUI(); });
+            onSnapshot(goalsCol, (snapshot) => { savingsGoals = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); updateUI(); });
         }
         
-        // --- UI UPDATE & DATA HANDLING FUNCTIONS ---
+        // --- UI UPDATE & DATA HANDLING ---
         function updateUI() {
             if (!userId) return;
-            updateSummary();
-            updateBudgetStatus();
-            updateSavingsGoals();
+            updateSummary(); 
+            updateBudgetStatus(); 
+            updateSavingsGoals(); 
             updateInsights();
-            updateTransactionList();
+            updateTransactionList(); 
             updateCharts();
         }
 
         async function handleFormSubmit(e, type) {
             e.preventDefault();
-            if (!userId) {
-                showNotification("Error: Not signed in. Please refresh.", true);
-                return;
-            }
+            if (!userId) { showNotification("Error: Not signed in.", true); return; }
             const form = e.target;
             const id = form.dataset.id;
             let data = {};
+            const isRecurring = form.isRecurring ? form.isRecurring.checked : false;
 
             try {
                 if (type === 'expense') {
-                    data = {
-                        amount: parseFloat(form.amount.value),
-                        description: form.description.value,
-                        category: form.category.value,
-                        date: form.date.value,
-                    };
+                    data = { amount: parseFloat(form.amount.value), description: form.description.value, category: form.category.value, date: form.date.value, isRecurring };
                     const colRef = collection(db, 'artifacts', appId, 'users', userId, 'expenses');
                     id ? await updateDoc(doc(colRef, id), data) : await addDoc(colRef, data);
-                    showNotification('Expense saved successfully!');
+                    showNotification('Expense saved!');
                 } else if (type === 'income') {
-                    data = {
-                        amount: parseFloat(form.incomeAmount.value),
-                        source: form.incomeSource.value,
-                        date: form.incomeDate.value,
-                    };
+                    data = { amount: parseFloat(form.incomeAmount.value), source: form.incomeSource.value, date: form.incomeDate.value, isRecurring };
                     const colRef = collection(db, 'artifacts', appId, 'users', userId, 'incomes');
                     id ? await updateDoc(doc(colRef, id), data) : await addDoc(colRef, data);
-                    showNotification('Income saved successfully!');
+                    showNotification('Income saved!');
                 } else if (type === 'budget') {
                     data = { amount: parseFloat(form.budgetAmount.value) };
-                    const docRef = doc(db, 'artifacts', appId, 'users', userId, 'config', 'budget');
-                    await setDoc(docRef, data);
+                    await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'config', 'budget'), data);
                     showNotification('Budget updated!');
                 } else if (type === 'goal') {
-                     data = {
-                        name: form.goalName.value,
-                        targetAmount: parseFloat(form.goalAmount.value),
-                        targetDate: form.goalDate.value,
-                        createdDate: new Date().toISOString().split('T')[0]
-                    };
+                     data = { name: form.goalName.value, targetAmount: parseFloat(form.goalAmount.value), targetDate: form.goalDate.value, createdDate: new Date().toISOString().split('T')[0] };
                     const colRef = collection(db, 'artifacts', appId, 'users', userId, 'savingsGoals');
                     id ? await updateDoc(doc(colRef, id), data) : await addDoc(colRef, data);
                     showNotification('Savings goal saved!');
@@ -461,10 +413,10 @@
                 closeModal('modal');
             } catch (error) {
                 console.error("Firestore write error:", error);
-                showNotification("Error saving data. Please try again.", true);
+                showNotification("Error saving data.", true);
             }
         }
-
+        
         function editTransaction(id, type) {
             const transaction = (type === 'expense' ? expenses : incomes).find(t => t.id === id);
             if (!transaction) return;
@@ -480,7 +432,7 @@
             itemToDelete = id;
             itemTypeToDelete = type;
             document.getElementById('deleteModalTitle').textContent = `Delete ${name}?`;
-            document.getElementById('deleteModalText').textContent = `This will permanently remove this ${name} from your records.`;
+            document.getElementById('deleteModalText').textContent = `This will permanently remove this item.`;
             document.getElementById('deleteModal').style.display = 'flex';
         }
 
@@ -512,23 +464,16 @@
 
         // --- MODAL & NOTIFICATION HELPERS ---
         const modalContent = document.getElementById('modalContent');
-        
-        function showModal(htmlContent) {
-            modalContent.innerHTML = htmlContent;
-            document.getElementById('modal').style.display = 'flex';
+        function showModal(htmlContent) { 
+            const modal = document.getElementById('modal');
+            modalContent.innerHTML = htmlContent; 
+            modal.style.display = 'flex';
         }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-            if(modalId === 'modal') modalContent.innerHTML = '';
-        }
-
+        function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; if(modalId === 'modal') modalContent.innerHTML = ''; }
         function showNotification(message, isError = false) {
             const notification = document.createElement('div');
-            const bgColor = isError ? 'bg-red-600' : 'bg-green-600';
-            const icon = isError ? 'fa-exclamation-circle' : 'fa-check-circle';
-            notification.className = `fixed bottom-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg fade-in z-50`;
-            notification.innerHTML = `<div class="flex items-center space-x-2"><i class="fas ${icon}"></i><span>${message}</span></div>`;
+            notification.className = `fixed bottom-4 right-4 ${isError ? 'bg-red-600' : 'bg-green-600'} text-white px-6 py-3 rounded-lg shadow-lg fade-in z-50`;
+            notification.innerHTML = `<div class="flex items-center space-x-2"><i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i><span>${message}</span></div>`;
             document.body.appendChild(notification);
             setTimeout(() => notification.remove(), 3000);
         }
@@ -539,40 +484,14 @@
             return `
                 <h3 class="text-lg font-semibold text-gray-100 mb-4">${isEdit ? 'Edit' : 'Add'} Expense</h3>
                 <form onsubmit="handleFormSubmit(event, 'expense')" data-id="${expense.id || ''}" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Amount</label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">₹</span>
-                            <input type="number" name="amount" step="0.01" min="0" required class="w-full pl-8 pr-3 py-2 rounded-lg dark-input" value="${expense.amount || ''}" placeholder="0.00">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Description</label>
-                        <input type="text" name="description" required class="w-full px-3 py-2 rounded-lg dark-input" value="${expense.description || ''}" placeholder="e.g., Lunch">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Category</label>
-                        <select name="category" required class="w-full px-3 py-2 rounded-lg dark-input dark">
-                            <option value="food" ${expense.category === 'food' ? 'selected' : ''}>🍔 Food & Dining</option>
-                            <option value="transport" ${expense.category === 'transport' ? 'selected' : ''}>🚗 Transportation</option>
-                            <option value="shopping" ${expense.category === 'shopping' ? 'selected' : ''}>🛍️ Shopping</option>
-                            <option value="bills" ${expense.category === 'bills' ? 'selected' : ''}>📄 Bills & Utilities</option>
-                            <option value="entertainment" ${expense.category === 'entertainment' ? 'selected' : ''}>🎬 Entertainment</option>
-                            <option value="other" ${expense.category === 'other' ? 'selected' : ''}>📦 Other</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Date</label>
-                        <input type="date" name="date" required class="w-full px-3 py-2 rounded-lg dark-input" value="${expense.date || new Date().toISOString().split('T')[0]}">
-                    </div>
-                    <div class="flex gap-3 pt-4">
-                        <button type="submit" class="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700">${isEdit ? 'Save Changes' : 'Add Expense'}</button>
-                        <button type="button" onclick="closeModal('modal')" class="flex-1 bg-gray-600 text-gray-100 py-2 px-4 rounded-lg">Cancel</button>
-                    </div>
-                </form>
-            `;
+                    <div><label class="block text-sm font-medium text-gray-300 mb-1">Amount</label><div class="relative"><span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">₹</span><input type="number" name="amount" step="0.01" min="0" required class="w-full pl-8 pr-3 py-2 rounded-lg dark-input" value="${expense.amount || ''}" placeholder="0.00"></div></div>
+                    <div><label class="block text-sm font-medium text-gray-300 mb-1">Description</label><input type="text" name="description" required class="w-full px-3 py-2 rounded-lg dark-input" value="${expense.description || ''}" placeholder="e.g., Lunch"></div>
+                    <div><label class="block text-sm font-medium text-gray-300 mb-1">Category</label><select name="category" required class="w-full px-3 py-2 rounded-lg dark-input dark"><option value="food" ${expense.category === 'food' ? 'selected' : ''}>🍔 Food & Dining</option><option value="transport" ${expense.category === 'transport' ? 'selected' : ''}>🚗 Transportation</option><option value="shopping" ${expense.category === 'shopping' ? 'selected' : ''}>🛍️ Shopping</option><option value="bills" ${expense.category === 'bills' ? 'selected' : ''}>📄 Bills & Utilities</option><option value="entertainment" ${expense.category === 'entertainment' ? 'selected' : ''}>🎬 Entertainment</option><option value="other" ${expense.category === 'other' ? 'selected' : ''}>📦 Other</option></select></div>
+                    <div><label class="block text-sm font-medium text-gray-300 mb-1">Date</label><input type="date" name="date" required class="w-full px-3 py-2 rounded-lg dark-input" value="${expense.date || new Date().toISOString().split('T')[0]}"></div>
+                    <div class="flex items-center"><input id="isRecurring" name="isRecurring" type="checkbox" ${expense.isRecurring ? 'checked' : ''} class="h-4 w-4 rounded border-gray-600 text-indigo-600 focus:ring-indigo-500 bg-gray-700"><label for="isRecurring" class="ml-2 block text-sm text-gray-300">Recurring (Monthly)</label></div>
+                    <div class="flex gap-3 pt-4"><button type="submit" class="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700">${isEdit ? 'Save Changes' : 'Add Expense'}</button><button type="button" onclick="closeModal('modal')" class="flex-1 bg-gray-600 text-gray-100 py-2 px-4 rounded-lg">Cancel</button></div>
+                </form>`;
         }
-        
         function showAddExpense(expense) { showModal(getExpenseFormHTML(expense)); }
 
         function getIncomeFormHTML(income = {}) {
@@ -580,47 +499,22 @@
             return `
                 <h3 class="text-lg font-semibold text-gray-100 mb-4">${isEdit ? 'Edit' : 'Add'} Income</h3>
                 <form onsubmit="handleFormSubmit(event, 'income')" data-id="${income.id || ''}" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Amount</label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">₹</span>
-                            <input type="number" name="incomeAmount" step="0.01" min="0" required class="w-full pl-8 pr-3 py-2 rounded-lg dark-input" value="${income.amount || ''}" placeholder="0.00">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Source</label>
-                        <input type="text" name="incomeSource" required class="w-full px-3 py-2 rounded-lg dark-input" value="${income.source || ''}" placeholder="e.g., Salary">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Date</label>
-                        <input type="date" name="incomeDate" required class="w-full px-3 py-2 rounded-lg dark-input" value="${income.date || new Date().toISOString().split('T')[0]}">
-                    </div>
-                    <div class="flex gap-3 pt-4">
-                        <button type="submit" class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700">${isEdit ? 'Save Changes' : 'Add Income'}</button>
-                        <button type="button" onclick="closeModal('modal')" class="flex-1 bg-gray-600 text-gray-100 py-2 px-4 rounded-lg">Cancel</button>
-                    </div>
-                </form>
-            `;
+                    <div><label class="block text-sm font-medium text-gray-300 mb-1">Amount</label><div class="relative"><span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">₹</span><input type="number" name="incomeAmount" step="0.01" min="0" required class="w-full pl-8 pr-3 py-2 rounded-lg dark-input" value="${income.amount || ''}" placeholder="0.00"></div></div>
+                    <div><label class="block text-sm font-medium text-gray-300 mb-1">Source</label><input type="text" name="incomeSource" required class="w-full px-3 py-2 rounded-lg dark-input" value="${income.source || ''}" placeholder="e.g., Salary"></div>
+                    <div><label class="block text-sm font-medium text-gray-300 mb-1">Date</label><input type="date" name="incomeDate" required class="w-full px-3 py-2 rounded-lg dark-input" value="${income.date || new Date().toISOString().split('T')[0]}"></div>
+                    <div class="flex items-center"><input id="isRecurring" name="isRecurring" type="checkbox" ${income.isRecurring ? 'checked' : ''} class="h-4 w-4 rounded border-gray-600 text-indigo-600 focus:ring-indigo-500 bg-gray-700"><label for="isRecurring" class="ml-2 block text-sm text-gray-300">Recurring (Monthly)</label></div>
+                    <div class="flex gap-3 pt-4"><button type="submit" class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700">${isEdit ? 'Save Changes' : 'Add Income'}</button><button type="button" onclick="closeModal('modal')" class="flex-1 bg-gray-600 text-gray-100 py-2 px-4 rounded-lg">Cancel</button></div>
+                </form>`;
         }
         function showAddIncome(income) { showModal(getIncomeFormHTML(income)); }
-
+        
         function getBudgetFormHTML() {
             return `
                 <h3 class="text-lg font-semibold text-gray-100 mb-4">Set Monthly Budget</h3>
                 <form onsubmit="handleFormSubmit(event, 'budget')" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Budget Limit</label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">₹</span>
-                            <input type="number" name="budgetAmount" step="100" min="0" required class="w-full pl-8 pr-3 py-2 rounded-lg dark-input" value="${budget.amount || ''}" placeholder="Enter amount">
-                        </div>
-                    </div>
-                    <div class="flex gap-3 pt-4">
-                        <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">Set Budget</button>
-                        <button type="button" onclick="closeModal('modal')" class="flex-1 bg-gray-600 text-gray-100 py-2 px-4 rounded-lg">Cancel</button>
-                    </div>
-                </form>
-            `;
+                    <div><label class="block text-sm font-medium text-gray-300 mb-1">Budget Limit</label><div class="relative"><span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">₹</span><input type="number" name="budgetAmount" step="100" min="0" required class="w-full pl-8 pr-3 py-2 rounded-lg dark-input" value="${budget.amount || ''}" placeholder="Enter amount"></div></div>
+                    <div class="flex gap-3 pt-4"><button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">Set Budget</button><button type="button" onclick="closeModal('modal')" class="flex-1 bg-gray-600 text-gray-100 py-2 px-4 rounded-lg">Cancel</button></div>
+                </form>`;
         }
         function showBudget() { showModal(getBudgetFormHTML()); }
 
@@ -630,30 +524,14 @@
             return `
                 <h3 class="text-lg font-semibold text-gray-100 mb-4">Set Savings Goal</h3>
                 <form onsubmit="handleFormSubmit(event, 'goal')" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Goal Name</label>
-                        <input type="text" name="goalName" required class="w-full px-3 py-2 rounded-lg dark-input" placeholder="e.g., Emergency Fund">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Target Amount</label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">₹</span>
-                            <input type="number" name="goalAmount" step="100" min="0" required class="w-full pl-8 pr-3 py-2 rounded-lg dark-input" placeholder="0.00">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Target Date</label>
-                        <input type="date" name="goalDate" required class="w-full px-3 py-2 rounded-lg dark-input" value="${futureDate.toISOString().split('T')[0]}">
-                    </div>
-                    <div class="flex gap-3 pt-4">
-                        <button type="submit" class="flex-1 bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700">Set Goal</button>
-                        <button type="button" onclick="closeModal('modal')" class="flex-1 bg-gray-600 text-gray-100 py-2 px-4 rounded-lg">Cancel</button>
-                    </div>
-                </form>
-            `;
+                    <div><label class="block text-sm font-medium text-gray-300 mb-1">Goal Name</label><input type="text" name="goalName" required class="w-full px-3 py-2 rounded-lg dark-input" placeholder="e.g., Emergency Fund"></div>
+                    <div><label class="block text-sm font-medium text-gray-300 mb-1">Target Amount</label><div class="relative"><span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">₹</span><input type="number" name="goalAmount" step="100" min="0" required class="w-full pl-8 pr-3 py-2 rounded-lg dark-input" placeholder="0.00"></div></div>
+                    <div><label class="block text-sm font-medium text-gray-300 mb-1">Target Date</label><input type="date" name="goalDate" required class="w-full px-3 py-2 rounded-lg dark-input" value="${futureDate.toISOString().split('T')[0]}"></div>
+                    <div class="flex gap-3 pt-4"><button type="submit" class="flex-1 bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700">Set Goal</button><button type="button" onclick="closeModal('modal')" class="flex-1 bg-gray-600 text-gray-100 py-2 px-4 rounded-lg">Cancel</button></div>
+                </form>`;
         }
         function showGoal() { showModal(getGoalFormHTML()); }
-
+        
         // --- DISPLAY & RENDER LOGIC ---
         const categoryConfig = {
             food: { color: 'bg-red-900/50 text-red-300', icon: '🍔', name: 'Food', chartColor: '#f87171' },
@@ -689,7 +567,6 @@
             const expensesEl = document.getElementById('totalExpenses');
             const savingsEl = document.getElementById('netSavings');
             
-            // Animate value change if it's not the initial render
             if (incomeEl.textContent !== `₹${totalIncomeVal.toLocaleString('en-IN')}`) {
                 incomeEl.classList.add('value-change');
                 setTimeout(() => incomeEl.classList.remove('value-change'), 600);
@@ -779,7 +656,7 @@
         function updateInsights() {
             const insightsContainer = document.getElementById('insightsContainer');
             if (expenses.length === 0 && incomes.length === 0) {
-                insightsContainer.innerHTML = '<p class="text-gray-400 col-span-2 text-center">Add transactions to see personalized insights.</p>';
+                if(insightsContainer) insightsContainer.innerHTML = '<p class="text-gray-400 col-span-2 text-center">Add transactions to see personalized insights.</p>';
                 return;
             }
             const categoryTotals = expenses.reduce((acc, exp) => {
@@ -800,7 +677,23 @@
                         </div>
                     </div>`;
             }
-            insightsContainer.innerHTML = insightsHTML || '<p class="text-gray-400 col-span-2 text-center">Keep adding transactions for more insights!</p>';
+            
+            const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+            const daysInMonth = new Date().getDate();
+            const dailyAverage = totalExpenses / daysInMonth;
+
+            insightsHTML += `
+                <div class="insight-card p-4 rounded-lg border bg-blue-900/30 border-blue-800">
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-calendar-day text-indigo-400 text-xl"></i>
+                        <div>
+                            <h4 class="font-medium text-gray-100 mb-1">Daily Average</h4>
+                            <p class="text-sm text-gray-300">You're spending ₹${dailyAverage.toFixed(0)} per day.</p>
+                        </div>
+                    </div>
+                </div>`;
+                
+            if(insightsContainer) insightsContainer.innerHTML = insightsHTML || '<p class="text-gray-400 col-span-2 text-center">Keep adding transactions for more insights!</p>';
         }
 
         function updateTransactionList() {
@@ -994,16 +887,118 @@
             });
         }
         
-        function setRandomMoneyTip() {
-            const moneyTips = [
-                "Pay yourself first - save before you spend. Even 10% makes a huge difference.",
-                "Track every rupee - awareness is the first step to financial freedom.",
-                "Needs vs Wants - ask yourself: 'Do I really need this?' before spending.",
-                "An emergency fund is your safety net. Aim for 3-6 months of expenses.",
-                "Compound interest is powerful. Start early, save regularly.",
-                "A budget isn't about restriction, it's about giving your money a purpose.",
-            ];
-            document.getElementById('moneyTip').textContent = moneyTips[Math.floor(Math.random() * moneyTips.length)];
+        async function getDynamicMoneyTip() {
+            const moneyTipElement = document.getElementById('moneyTip');
+            try {
+                const prompt = "Give me a short, insightful financial tip for someone in India.";
+                let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                const payload = { contents: chatHistory };
+                const apiKey = ""; // Leave empty
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error('Failed to fetch tip');
+                const result = await response.json();
+                const text = result.candidates[0].content.parts[0].text;
+                if (moneyTipElement) moneyTipElement.textContent = text;
+            } catch (error) {
+                console.error("Failed to get dynamic money tip:", error);
+                if (moneyTipElement) moneyTipElement.textContent = "Track every rupee - awareness is the first step to financial freedom.";
+            }
+        }
+        
+        // --- New Advanced Features ---
+        async function getAIInsights() {
+            const btn = document.getElementById('getAdviceBtn');
+            const container = document.getElementById('aiInsightsContainer');
+            btn.disabled = true;
+            container.innerHTML = `<div class="spinner"></div>`;
+
+            const { filteredExpenses, filteredIncomes } = getFilteredTransactions();
+            const totalExpenses = filteredExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+            const totalIncome = filteredIncomes.reduce((sum, inc) => sum + inc.amount, 0);
+            
+            if (totalExpenses === 0 && totalIncome === 0) {
+                container.innerHTML = `<p class="text-gray-400 text-sm">Not enough data for an analysis. Please add some transactions.</p>`;
+                btn.disabled = false;
+                return;
+            }
+
+            const categoryTotals = filteredExpenses.reduce((acc, exp) => {
+                acc[exp.category] = (acc[exp.category] || 0) + exp.amount;
+                return acc;
+            }, {});
+            const topCategory = Object.entries(categoryTotals).sort((a,b) => b[1] - a[1])[0];
+
+            let summary = `My total income for the last 30 days was ₹${totalIncome}. My total expenses were ₹${totalExpenses}.`;
+            if (topCategory) {
+                summary += ` My top spending category was ${categoryConfig[topCategory[0]].name} with ₹${topCategory[1]}.`;
+            }
+
+            const prompt = `You are a friendly financial advisor in India. Based on this summary: "${summary}", provide one short, actionable financial tip (around 2-3 sentences) to help me improve my finances.`;
+
+            try {
+                let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                const payload = { contents: chatHistory };
+                const apiKey = ""; // Leave empty
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API request failed with status ${response.status}`);
+                }
+                
+                const result = await response.json();
+                const text = result.candidates[0].content.parts[0].text;
+                container.innerHTML = `<p class="text-indigo-200 text-sm">${text}</p>`;
+
+            } catch (error) {
+                console.error("AI Insight Error:", error);
+                container.innerHTML = `<p class="text-red-400 text-sm">Sorry, I couldn't get advice right now. Please try again later.</p>`;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function exportToCSV() {
+            const allTransactions = [
+                ...incomes.map(t => ({...t, type: 'income'})),
+                ...expenses.map(t => ({...t, type: 'expense'}))
+            ].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (allTransactions.length === 0) {
+                showNotification("No data to export.", true);
+                return;
+            }
+
+            const headers = "Date,Type,Description/Source,Category,Amount\n";
+            const csvContent = allTransactions.map(t => {
+                const date = t.date;
+                const type = t.type;
+                const description = t.type === 'income' ? t.source : t.description;
+                const category = t.type === 'expense' ? categoryConfig[t.category].name : 'N/A';
+                const amount = t.amount;
+                return [date, type, `"${description}"`, category, amount].join(',');
+            }).join('\n');
+
+            const blob = new Blob([headers + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", "money_wise_export.csv");
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
     </script>
