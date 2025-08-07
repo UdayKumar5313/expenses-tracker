@@ -8,18 +8,23 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --bg-primary: #0D1B2A;      /* Business Black */
+            --bg-secondary: #1B263B;   /* Deep Navy */
+            --text-primary: #F1F1F1;   /* Pearl White */
+            --text-secondary: #778DA9; /* Soft Steel */
+            --accent: #E0A458;         /* Burnished Gold */
+            --border-color: #415A77;   /* A slightly lighter steel blue for borders */
+        }
+
         body { 
             font-family: 'Inter', sans-serif;
-            transition: background 2s ease-in-out;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
             overflow-x: hidden;
         }
         
-        /* --- Dynamic Themes --- */
-        .theme-morning { background: linear-gradient(180deg, #0f172a 0%, #3b82f6 100%); }
-        .theme-afternoon { background: linear-gradient(180deg, #1e3a8a 0%, #3b82f6 100%); }
-        .theme-evening { background: linear-gradient(180deg, #334155 0%, #1e293b 100%); }
-        .theme-night { background: linear-gradient(180deg, #020617 0%, #0f172a 100%); }
-
         /* --- Animations --- */
         .fade-in { animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -44,17 +49,16 @@
         
         /* --- Dark Mode Form Styles --- */
         .dark-input {
-            background-color: #1f2937; /* bg-gray-800 */
-            border-color: #4b5563; /* border-gray-600 */
-            color: #f3f4f6; /* text-gray-100 */
+            background-color: var(--bg-primary);
+            border-color: var(--border-color);
+            color: var(--text-primary);
         }
         .dark-input:focus {
-            --tw-ring-opacity: 1;
-            border-color: #6366f1; /* focus:border-indigo-500 */
-            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.5);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(224, 164, 88, 0.5);
         }
         .dark select {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23778DA9' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
             background-position: right 0.5rem center;
             background-repeat: no-repeat;
             background-size: 1.5em 1.5em;
@@ -69,108 +73,50 @@
             position: absolute;
             bottom: 0;
             height: 2px;
-            background-color: #818cf8; /* indigo-400 */
+            background-color: var(--accent);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         /* Goal Jar Animation */
         .goal-jar {
             width: 100px; height: 150px;
-            border: 4px solid #4b5563;
+            border: 4px solid var(--border-color);
             border-bottom-left-radius: 40px;
             border-bottom-right-radius: 40px;
             position: relative;
             overflow: hidden;
-            background: rgba(255,255,255,0.05);
+            background: rgba(241, 241, 241, 0.05);
         }
         .jar-fill {
             position: absolute;
             bottom: 0; left: 0; right: 0;
-            background: linear-gradient(to top, #facc15, #fbbf24);
+            background: linear-gradient(to top, var(--accent), #fcd34d);
             transition: height 1s ease-in-out;
         }
-
-        /* --- Savings Garden --- */
-        #savings-garden {
-            position: fixed;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 300px;
-            height: 300px;
-            z-index: -1;
-            opacity: 0.3;
-            pointer-events: none;
-        }
-        .tree-trunk {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 10px;
-            background-color: #5a3a2e;
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-            transition: height 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-        }
-        .leaf {
-            position: absolute;
-            width: 25px;
-            height: 25px;
-            background-color: #34d399; /* emerald-400 */
-            border-radius: 50% 0;
-            opacity: 0;
-            transform: scale(0);
-            transition: all 1s ease-in-out;
-        }
-        
-        /* Growth Stages */
-        .stage-0 .tree-trunk { height: 0; }
-        .stage-1 .tree-trunk { height: 20px; }
-        .stage-1 .leaf-1 { bottom: 15px; left: 45%; opacity: 1; transform: scale(1) rotate(45deg); }
-        
-        .stage-2 .tree-trunk { height: 50px; }
-        .stage-2 .leaf { opacity: 1; transform: scale(1); }
-        .stage-2 .leaf-1 { bottom: 45px; left: 35%; transform: scale(1.2) rotate(60deg); }
-        .stage-2 .leaf-2 { bottom: 30px; left: 55%; transform: scale(1.1) rotate(-50deg); }
-        
-        .stage-3 .tree-trunk { height: 100px; }
-        .stage-3 .leaf { opacity: 1; transform: scale(1.2); }
-        .stage-3 .leaf-1 { bottom: 95px; left: 40%; transform: scale(1.4) rotate(50deg); }
-        .stage-3 .leaf-2 { bottom: 70px; left: 60%; transform: scale(1.3) rotate(-60deg); }
-        .stage-3 .leaf-3 { bottom: 50px; left: 30%; transform: scale(1.2) rotate(70deg); }
-
-        .stage-4 .tree-trunk { height: 180px; }
-        .stage-4 .leaf { opacity: 1; transform: scale(1.4); }
-        .stage-4 .leaf-1 { bottom: 170px; left: 45%; transform: scale(1.6) rotate(45deg); }
-        .stage-4 .leaf-2 { bottom: 140px; left: 65%; transform: scale(1.5) rotate(-55deg); }
-        .stage-4 .leaf-3 { bottom: 120px; left: 25%; transform: scale(1.4) rotate(65deg); }
-        .stage-4 .leaf-4 { bottom: 90px; left: 70%; transform: scale(1.3) rotate(-70deg); }
-        .stage-4 .leaf-5 { bottom: 60px; left: 20%; transform: scale(1.2) rotate(80deg); }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-200 min-h-screen">
+<body class="text-gray-200 min-h-screen">
     <div id="app-container" class="opacity-0 transition-opacity duration-500">
         <!-- Header -->
-        <header class="bg-gray-800/80 backdrop-blur-sm shadow-lg border-b border-gray-700 sticky top-0 z-40">
+        <header class="bg-black/20 backdrop-blur-sm shadow-lg border-b border-[var(--border-color)] sticky top-0 z-40">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-3">
-                        <i class="fas fa-coins text-yellow-400 text-2xl"></i>
-                        <h1 class="text-2xl font-bold text-gray-100">Money Wise</h1>
+                        <i class="fas fa-coins text-[var(--accent)] text-2xl"></i>
+                        <h1 class="text-2xl font-bold text-[var(--text-primary)]">Money Wise</h1>
                     </div>
                     <div class="flex items-center space-x-4 md:space-x-6">
                         <div class="text-center">
-                            <p class="text-xs sm:text-sm text-gray-400">Income</p>
+                            <p class="text-xs sm:text-sm text-[var(--text-secondary)]">Income</p>
                             <p class="text-base sm:text-xl font-bold text-green-400" id="totalIncome">₹0</p>
                         </div>
                         <div class="text-center">
-                            <p class="text-xs sm:text-sm text-gray-400">Expenses</p>
+                            <p class="text-xs sm:text-sm text-[var(--text-secondary)]">Expenses</p>
                             <p class="text-base sm:text-xl font-bold text-red-400" id="totalExpenses">₹0</p>
                         </div>
                         <div class="text-center">
-                            <p class="text-xs sm:text-sm text-gray-400">Savings</p>
-                            <p class="text-base sm:text-xl font-bold text-indigo-400" id="netSavings">₹0</p>
+                            <p class="text-xs sm:text-sm text-[var(--text-secondary)]">Savings</p>
+                            <p class="text-base sm:text-xl font-bold text-[var(--accent)]" id="netSavings">₹0</p>
                         </div>
                     </div>
                 </div>
@@ -179,10 +125,10 @@
 
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
              <!-- Tab Navigation -->
-            <div class="bg-gray-800 rounded-xl shadow-md p-2 scroll-animate border border-gray-700 mb-8">
+            <div class="bg-[var(--bg-secondary)] rounded-xl shadow-md p-2 scroll-animate border border-[var(--border-color)] mb-8">
                 <div id="tab-container" class="relative flex items-center justify-around">
-                    <button data-target="dashboard-panel" class="tab-btn flex-1 py-2 px-4 text-center text-sm font-medium text-gray-300 transition rounded-lg">Dashboard</button>
-                    <button data-target="goals-panel" class="tab-btn flex-1 py-2 px-4 text-center text-sm font-medium text-gray-300 transition rounded-lg">Goals</button>
+                    <button data-target="dashboard-panel" class="tab-btn flex-1 py-2 px-4 text-center text-sm font-medium text-[var(--text-secondary)] transition rounded-lg">Dashboard</button>
+                    <button data-target="goals-panel" class="tab-btn flex-1 py-2 px-4 text-center text-sm font-medium text-[var(--text-secondary)] transition rounded-lg">Goals</button>
                     <div id="tab-underline"></div>
                 </div>
             </div>
@@ -193,8 +139,8 @@
                     <!-- Left Column - Actions & Goals -->
                     <div class="lg:col-span-1 space-y-6">
                         <!-- Quick Actions -->
-                        <div class="bg-gray-800 rounded-xl shadow-md p-6 scroll-animate border border-gray-700">
-                            <h2 class="text-lg font-semibold text-gray-100 mb-4">Quick Actions</h2>
+                        <div class="bg-[var(--bg-secondary)] rounded-xl shadow-md p-6 scroll-animate border border-[var(--border-color)]">
+                            <h2 class="text-lg font-semibold text-[var(--text-primary)] mb-4">Quick Actions</h2>
                             <div class="space-y-3">
                                 <button onclick="showAddExpense()" class="w-full p-4 bg-red-900/50 text-red-300 rounded-lg hover:bg-red-900/80 transition text-left transform hover:scale-105 active:scale-95">
                                     <i class="fas fa-minus-circle mr-3"></i>
@@ -212,22 +158,22 @@
                         </div>
 
                         <!-- Budget Status -->
-                        <div class="bg-gray-800 rounded-xl shadow-md p-6 scroll-animate border border-gray-700">
-                            <h2 class="text-lg font-semibold text-gray-100 mb-4 flex items-center">
-                                <i class="fas fa-chart-pie text-indigo-400 mr-2"></i>
+                        <div class="bg-[var(--bg-secondary)] rounded-xl shadow-md p-6 scroll-animate border border-[var(--border-color)]">
+                            <h2 class="text-lg font-semibold text-[var(--text-primary)] mb-4 flex items-center">
+                                <i class="fas fa-chart-pie text-[var(--accent)] mr-2"></i>
                                 Monthly Budget
                             </h2>
                             <div id="budgetStatus" class="space-y-4">
                                 <div>
-                                    <div class="flex justify-between text-sm mb-2 text-gray-300">
+                                    <div class="flex justify-between text-sm mb-2 text-[var(--text-secondary)]">
                                         <span>Budget Limit</span>
                                         <span id="budgetLimit">Not set</span>
                                     </div>
                                     <div class="w-full bg-gray-700 rounded-full h-3">
-                                        <div id="budgetProgress" class="progress-fill bg-indigo-500 h-3 rounded-full" style="width: 0%"></div>
+                                        <div id="budgetProgress" class="progress-fill bg-[var(--accent)] h-3 rounded-full" style="width: 0%"></div>
                                     </div>
                                 </div>
-                                <div id="budgetMessage" class="text-center p-3 rounded-lg bg-gray-700/50 text-gray-300 text-sm">
+                                <div id="budgetMessage" class="text-center p-3 rounded-lg bg-gray-700/50 text-[var(--text-secondary)] text-sm">
                                     Set a monthly budget to start tracking
                                 </div>
                             </div>
@@ -237,56 +183,45 @@
                     <!-- Right Column - Analytics & Transactions -->
                     <div class="lg:col-span-2 space-y-6">
                          <!-- Spending Analysis -->
-                        <div class="bg-gray-800 rounded-xl shadow-md p-6 scroll-animate border border-gray-700">
-                            <h2 class="text-lg font-semibold text-gray-100 mb-4 flex items-center">
-                                <i class="fas fa-chart-line text-indigo-400 mr-2"></i>
+                        <div class="bg-[var(--bg-secondary)] rounded-xl shadow-md p-6 scroll-animate border border-[var(--border-color)]">
+                            <h2 class="text-lg font-semibold text-[var(--text-primary)] mb-4 flex items-center">
+                                <i class="fas fa-chart-line text-[var(--accent)] mr-2"></i>
                                 Advanced Spending Analysis
                             </h2>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div>
-                                    <h3 class="font-medium text-gray-300 mb-3 text-center">Where Your Money Goes</h3>
+                                    <h3 class="font-medium text-[var(--text-secondary)] mb-3 text-center">Where Your Money Goes</h3>
                                     <div class="relative h-48 md:h-56">
                                         <canvas id="categoryChart"></canvas>
                                     </div>
                                 </div>
                                  <div>
-                                    <h3 class="font-medium text-gray-300 mb-3 text-center">Monthly Comparison</h3>
+                                    <h3 class="font-medium text-[var(--text-secondary)] mb-3 text-center">Monthly Comparison</h3>
                                     <div class="relative h-48 md:h-56">
                                         <canvas id="monthlyComparisonChart"></canvas>
                                     </div>
                                 </div>
                             </div>
                              <div class="mt-8">
-                                <h3 class="font-medium text-gray-300 mb-3">Spending Trend (Last 7 Days)</h3>
+                                <h3 class="font-medium text-[var(--text-secondary)] mb-3">Spending Trend (Last 7 Days)</h3>
                                 <div class="relative h-48">
                                     <canvas id="spendingChart"></canvas>
                                 </div>
                             </div>
                         </div>
                         
-                        <!-- Smart Insights -->
-                        <div class="bg-gray-800 rounded-xl shadow-md p-6 scroll-animate border border-gray-700">
-                            <h2 class="text-lg font-semibold text-gray-100 mb-4 flex items-center">
-                                <i class="fas fa-brain text-indigo-400 mr-2"></i>
-                                ✨ Smart Insights for You
-                            </h2>
-                            <div id="insightsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <!-- Insights will be inserted here -->
-                            </div>
-                        </div>
-                        
                         <!-- Recent Transactions -->
-                        <div class="bg-gray-800 rounded-xl shadow-md scroll-animate border border-gray-700">
-                            <div class="p-6 border-b border-gray-700 flex items-center justify-between">
-                                <h2 class="text-lg font-semibold text-gray-100 flex items-center">
-                                    <i class="fas fa-list text-indigo-400 mr-2"></i>
+                        <div class="bg-[var(--bg-secondary)] rounded-xl shadow-md scroll-animate border border-[var(--border-color)]">
+                            <div class="p-6 border-b border-[var(--border-color)] flex items-center justify-between">
+                                <h2 class="text-lg font-semibold text-[var(--text-primary)] flex items-center">
+                                    <i class="fas fa-list text-[var(--accent)] mr-2"></i>
                                     Recent Transactions
                                 </h2>
-                                <button onclick="exportToCSV()" class="text-sm text-indigo-400 hover:text-indigo-300">
+                                <button onclick="exportToCSV()" class="text-sm text-[var(--accent)] hover:opacity-80">
                                     <i class="fas fa-download mr-1"></i> Export CSV
                                 </button>
                             </div>
-                            <div class="p-4 border-b border-gray-700">
+                            <div class="p-4 border-b border-[var(--border-color)]">
                                 <div class="flex items-center space-x-4">
                                     <select id="filterCategory" class="dark-input dark w-full">
                                         <option value="">All Categories</option>
@@ -320,13 +255,13 @@
             
             <!-- Goals Panel -->
             <div id="goals-panel" class="tab-panel hidden">
-                <div class="bg-gray-800 rounded-xl shadow-md p-6 scroll-animate border border-gray-700">
+                <div class="bg-[var(--bg-secondary)] rounded-xl shadow-md p-6 scroll-animate border border-[var(--border-color)]">
                     <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-lg font-semibold text-gray-100 flex items-center">
-                            <i class="fas fa-bullseye text-indigo-400 mr-2"></i>
+                        <h2 class="text-lg font-semibold text-[var(--text-primary)] flex items-center">
+                            <i class="fas fa-bullseye text-[var(--accent)] mr-2"></i>
                             Your Savings Goals
                         </h2>
-                        <button onclick="showGoal()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition transform hover:scale-105 active:scale-95">
+                        <button onclick="showGoal()" class="bg-[var(--accent)] hover:opacity-90 text-black font-bold py-2 px-4 rounded-lg transition transform hover:scale-105 active:scale-95">
                             <i class="fas fa-plus mr-2"></i> New Goal
                         </button>
                     </div>
@@ -475,7 +410,6 @@
             updateSummary(); 
             updateBudgetStatus(); 
             updateSavingsGoals(); 
-            updateInsights();
             updateTransactionList(); 
             updateCharts();
             updateSavingsGarden();
@@ -644,7 +578,7 @@
             transport: { color: 'bg-blue-900/50 text-blue-300', icon: '🚗', name: 'Transport', chartColor: '#60a5fa' },
             shopping: { color: 'bg-purple-900/50 text-purple-300', icon: '🛍️', name: 'Shopping', chartColor: '#c084fc' },
             bills: { color: 'bg-yellow-900/50 text-yellow-300', icon: '📄', name: 'Bills', chartColor: '#facc15' },
-            entertainment: { color: 'bg-pink-900/50 text-pink-300', icon: '�', name: 'Fun', chartColor: '#f472b6' },
+            entertainment: { color: 'bg-pink-900/50 text-pink-300', icon: '🎬', name: 'Fun', chartColor: '#f472b6' },
             other: { color: 'bg-gray-700 text-gray-300', icon: '📦', name: 'Other', chartColor: '#9ca3af' }
         };
 
